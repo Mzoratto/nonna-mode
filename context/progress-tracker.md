@@ -23,6 +23,7 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Limited OpenAI to a one-way scam-pattern check (can only add a hold) and explanation/brief generation (2026-10-16, option B).
 - [x] Documented a 10-component, 13-connection architecture with explicit Email → Payer and Email → Contacts paths.
 - [x] Blueprint review fixes (2026-10-16): one `Payment` table for every send, written before any PayPal call; added `AWAITING_BUYER`, `AUTHORIZING`, `ABANDONED` states; one AUTHORIZE-only payment path; recovery scan covers in-flight operations; decided new-payee definition, signed-link access, Resend, demo time scale, both contacts may decide after escalation, and the separate-payee fallback; trimmed the required test set.
+- [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
@@ -38,7 +39,10 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [ ] Runner startup and five-minute recovery scan.
 - [ ] AI scam-pattern check: schema, one-way union, timeout → hold.
 - [ ] OpenAI wording validation and fallback.
-- [ ] Recorded demo, Devpost write-up, and three-minute video.
+- [ ] Public repository with a detectable MIT license.
+- [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.
+- [ ] README self-host instructions tested from a clean clone.
+- [ ] Recorded demo, Devpost write-up, and three-minute video (public on YouTube, no copyrighted music).
 
 ## Immediate next step: one- to two-day proof
 
@@ -72,18 +76,22 @@ Before writing UI:
 - Implement self-dealing rejection, rerouting, decline, capture, and void.
 - Implement signed-link sign-in.
 - Add payer send/status screens, contact inbox, and plain-language log.
+- Add `/demo` scenario creation and the in-app outbox.
 
 ### Week 3 — recovery, notifications, and wording
 
 - Configure the Trigger.dev scheduled task for startup and five-minute scans, including in-flight operation recovery.
 - Implement Resend notices, 12-hour escalation, 24-hour expiry, and `DEMO_TIME_SCALE`.
 - Add OpenAI explanation/brief generation with deterministic fallback.
+- Deploy to Render from `render.yaml`, register the deployment-URL webhook, and point Trigger.dev at it.
+- Reserve two to three days for UI polish (Design is a quarter of the score).
 
 ### Week 4 — evidence and submission
 
 - Rehearse the scam decline and self-dealing scenes with real sandbox operations and demo timing.
 - Record a three-minute video with visible sandbox status, demo-timing badge, and honest limitations.
 - Write Devpost content and verify any external statistics and citations.
+- Test the README setup from a clean clone; make the repository public with the MIT license visible.
 - Freeze scope and run the final checks before November 12.
 
 ## Decision register
@@ -109,7 +117,9 @@ Before writing UI:
 | Background work | One Trigger.dev scheduled task. |
 | Notifications | Resend. |
 | Separate payee fallback | Merchant as actual payee, recipient as metadata, disclosed. |
-| Deployment | Local-first; webhook tunnel needed; no hosting decision made. |
+| Deployment | Render (sponsor tool) hosts the judges' sandbox demo URL on a paid instance; tunnel only for local development. |
+| Repository | Public, MIT-licensed (hackathon rule). |
+| Judge access | `/demo` creates isolated scenarios with on-screen signed links; in-app outbox; sandbox buyer login in the README. |
 
 ## Top risks and fallbacks
 
@@ -136,6 +146,8 @@ Nice to have if time allows: self-dealing reroute, payer-confirmation-missing ap
 2. Which webhook events actually arrive, and how are they linked to Payments?
 3. What authorization lifetime does the sandbox report?
 4. Will the recorded story use EUR throughout? (Default: yes.)
+5. What is the hackathon theme text for the Stage One pass/fail check?
+6. What do the sponsor-prize rules (section 8) require for Render? Check before deploying.
 
 ## Update rule
 

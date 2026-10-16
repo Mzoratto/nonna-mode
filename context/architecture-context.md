@@ -160,7 +160,7 @@ Scheduler finds overdue payment â†’ Decision Service atomically sets `EXPIRED` â
 
 ## Access (decided)
 
-All actors sign in with a **signed, expiring link** sent by email (HMAC over actor type, actor ID, optional payment ID, and expiry; 24-hour lifetime for review links). The link establishes a session cookie; actor identity is always read from the session, never from the request body. Decision idempotency keys make a reused link harmless. For local recording, links may be pre-issued from a seed script; this is labelled demo-only.
+All actors sign in with a **signed, expiring link** sent by email (HMAC over actor type, actor ID, optional payment ID, and expiry; 24-hour lifetime for review links). The link establishes a session cookie; actor identity is always read from the session, never from the request body. Decision idempotency keys make a reused link harmless. On the hosted demo, `/demo` creates an isolated scenario (one Payer row and its contacts, payees, and seed history; no extra table) and shows each actor's signed link on screen. Locally, the seed script does the same. Both are labelled demo-only.
 
 ## Demo timing (decided)
 
@@ -173,7 +173,8 @@ All actors sign in with a **signed, expiring link** sent by email (HMAC over act
 - **Webhook candidates to verify:** `CHECKOUT.ORDER.APPROVED`, `PAYMENT.AUTHORIZATION.CREATED`, `PAYMENT.AUTHORIZATION.VOIDED`, `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`. Validate actual availability and payloads in the sandbox.
 - **Idempotency:** every PayPal command uses its stored request ID (`PayPal-Request-Id`). Local guards and reconciliation are still required.
 - **Runner:** Trigger.dev, one scheduled task that calls the Decision Service. No payment policy in the runner.
-- **Email:** Resend. Notification idempotency keys prevent duplicate logical sends; delivery failures never roll back a valid payment decision.
+- **Email:** Resend. Notification idempotency keys prevent duplicate logical sends; delivery failures never roll back a valid payment decision. Every notice is also shown in the scenario's in-app outbox (read from `Notification`), because judges do not own the seeded contact addresses. Missing Resend config is not an error.
+- **Hosting:** Render (a hackathon sponsor tool) runs the app as one long-lived Node web service that serves the judges' sandbox demo URL. Neon stays the database, connected by `DATABASE_URL`, and the PayPal webhook is registered to the Render URL. A `render.yaml` blueprint describes the service so self-hosters can deploy it with one click. Use a paid instance (not the free tier) through judging, because free services sleep after inactivity and cold starts would delay webhooks and the first page load. Trigger.dev stays the scheduler. Local development uses a tunnel.
 - **OpenAI:** two structured calls at most per send: the scam-pattern check at submission (only if text present) and one explanation/brief call per flagged payment. No tools, payment credentials, or decision fields beyond the one-way `match`.
 - **Transaction Search:** optional, after the core demo works. Allow up to three hours of lag and 31-day coverage.
 

@@ -77,6 +77,10 @@ Keep request, decision, and provider confirmation as separate events. Do not wri
 
 Keep setup minimal: payer identity, sandbox account references, threshold, timezone, and one or two contacts with priority and account identity. Seed what judges do not need to see. Avoid building general account management.
 
+### 7. Demo start (hosted)
+
+`/demo` explains in two sentences that this is a PayPal sandbox and that Nonna Mode protects only sends made through it. One **Start a demo** button creates an isolated scenario. The page then shows the signed sign-in links for the payer and both contacts (to open in separate browser profiles), the PayPal sandbox buyer login, and a link to the scenario's outbox. Label everything demo-only.
+
 ## Key states
 
 | State | User-facing treatment |
@@ -112,7 +116,7 @@ For recording, payer and contact screens may be shown side by side in separate b
 
 ## Email
 
-Emails (Resend) carry short notices and signed, expiring links back to the review interface. They do not approve, decline, capture, or void payments directly. Cover immediate review, 12-hour escalation, self-dealing rerouting, decision results, and expiry. Do not put credentials or unnecessary sensitive note content in email.
+Emails (Resend) carry short notices and signed, expiring links back to the review interface. They do not approve, decline, capture, or void payments directly. Cover immediate review, 12-hour escalation, self-dealing rerouting, decision results, and expiry. Do not put credentials or unnecessary sensitive note content in email. The demo outbox shows the same notices in-app for judges.
 
 ## Open questions
 
