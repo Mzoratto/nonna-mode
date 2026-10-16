@@ -2,9 +2,9 @@
 
 ## Status
 
-**Phase: architecture defined; sandbox feasibility not yet verified.**
+**Phase: sandbox feasibility proven (2026-10-16), with the separate-payee fallback in effect. Next: Phase 1 durable records.**
 
-This tracker records only work supported by the saved brief and canvas. No repository inspection, code execution, API calls, or successful tests are established here.
+Checked items below are backed by evidence: see `evidence/2026-10-16-sandbox-proof.md` for the money-flow proof.
 
 Submission deadline: **November 12, 2026** (about four weeks of solo work).
 
@@ -23,15 +23,13 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Limited OpenAI to a one-way scam-pattern check (can only add a hold) and explanation/brief generation (2026-10-16, option B).
 - [x] Documented a 10-component, 13-connection architecture with explicit Email → Payer and Email → Contacts paths.
 - [x] Blueprint review fixes (2026-10-16): one `Payment` table for every send, written before any PayPal call; added `AWAITING_BUYER`, `AUTHORIZING`, `ABANDONED` states; one AUTHORIZE-only payment path; recovery scan covers in-flight operations; decided new-payee definition, signed-link access, Resend, demo time scale, both contacts may decide after escalation, and the separate-payee fallback; trimmed the required test set.
+- [x] Repository scaffold (Next.js 16, strict TS), PayPal sandbox client, webhook route deployed on Render (2026-10-16).
+- [x] Sandbox proof (2026-10-16): separate-payee capture works but its void is refused (`403 PERMISSION_DENIED`), so the fallback is in effect. Merchant-payee capture and void both confirmed by API and signature-verified webhooks. Request-ID replays are idempotent. Authorization lifetime is 29 days. Webhooks arrive late and out of order.
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
-- [ ] Repository scaffold and local commands.
-- [ ] Separate-payee order creation, authorization, and capture.
-- [ ] Successful void of a separate authorization.
-- [ ] Actual webhook coverage, signature verification, and duplicate handling.
-- [ ] Authorization lifetime in the sandbox.
+- [ ] Webhook duplicate handling (needs the `WebhookEvent` table; Phase 1).
 - [ ] Database migrations and seed data.
 - [ ] Atomic approval/decline/expiry races.
 - [ ] Signed-link access and review inbox.
@@ -44,7 +42,7 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [ ] README self-host instructions tested from a clean clone.
 - [ ] Recorded demo, Devpost write-up, and three-minute video (public on YouTube, no copyrighted music).
 
-## Immediate next step: one- to two-day proof
+## Day-1 proof (done 2026-10-16; kept for reference)
 
 Before writing UI:
 
@@ -116,7 +114,7 @@ Before writing UI:
 | Storage | Neon Postgres; eight tables. |
 | Background work | One Trigger.dev scheduled task. |
 | Notifications | Resend. |
-| Separate payee fallback | Merchant as actual payee, recipient as metadata, disclosed. |
+| Separate payee fallback | **In effect** (2026-10-16 proof: separate-payee void refused). Merchant is the actual payee, recipient is metadata, disclosed. |
 | Deployment | Render (sponsor tool) hosts the judges' sandbox demo URL on a paid instance; tunnel only for local development. |
 | Repository | Public, MIT-licensed (hackathon rule). |
 | Judge access | `/demo` creates isolated scenarios with on-screen signed links; in-app outbox; sandbox buyer login in the README. |
@@ -142,9 +140,9 @@ Nice to have if time allows: self-dealing reroute, payer-confirmation-missing ap
 
 ## Open questions
 
-1. Does separate-payee authorization work in the sandbox? (Day-1 proof answers this.)
-2. Which webhook events actually arrive, and how are they linked to Payments?
-3. What authorization lifetime does the sandbox report?
+1. ~~Separate-payee support~~: capture yes, void no, so the fallback applies.
+2. ~~Webhook coverage~~: ORDER.APPROVED, AUTHORIZATION.CREATED/VOIDED and CAPTURE.COMPLETED arrive, linked by resource ID; out of order. Still open: linking to a Payment via `custom_id` (Phase 1).
+3. ~~Authorization lifetime~~: 29 days.
 4. Will the recorded story use EUR throughout? (Default: yes.)
 5. What is the hackathon theme text for the Stage One pass/fail check?
 6. What do the sponsor-prize rules (section 8) require for Render? Check before deploying.

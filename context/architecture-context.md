@@ -183,5 +183,6 @@ All actors sign in with a **signed, expiring link** sent by email (HMAC over act
 - The 24-hour review deadline starts when authorization is confirmed.
 - No mandatory minimum hold.
 - EUR only.
-- Confirm authorization lifetime in the sandbox. 24 hours is expected to be well inside it, but this is not yet evidence.
-- Confirm whether separate-payee authorization works; the fallback above applies if not.
+- Authorization lifetime observed in sandbox: 29 days (`expiration_time`). The 24-hour window is well inside it.
+- Separate payee (2026-10-16 proof): capture works, but void of a separate-payee authorization is refused (`403 PERMISSION_DENIED`). **The fallback is in effect.**
+- Webhooks arrive late (up to ~40 s) and out of order, carrying current resource status. Treat each one as a prompt to GET the resource and reconcile; never move state backwards.
