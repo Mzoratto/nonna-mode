@@ -53,11 +53,11 @@ No file storage, vector database, extra backend service, or mobile application i
 
 These are setup requirements, not claims that scripts already exist.
 
-1. Create a private repository, separate from Splnit, AgentOS, and Mandate.
+1. Create a **public** GitHub repository with an MIT `LICENSE` (a hackathon requirement), separate from Splnit, AgentOS, and Mandate. Never commit secrets.
 2. Scaffold one Next.js application with strict TypeScript and commit its lockfile.
 3. Configure a development Neon database and apply versioned migrations.
 4. Create PayPal sandbox application credentials and payer/payee test accounts.
-5. Configure a public HTTPS tunnel to the local webhook endpoint and register that URL with PayPal.
+5. For local development, configure a public HTTPS tunnel to the local webhook endpoint and register that URL with PayPal. The hosted demo on Render registers its stable deployment URL instead.
 6. Configure OpenAI, Trigger.dev, and Resend.
 7. Seed one payer, two contacts, recipient identities, and minimal payee history.
 8. Run the sandbox money-flow proof before building the review interface.
@@ -93,12 +93,19 @@ Keep secrets out of browser bundles, source control, screenshots, and recordings
 7. Repeat with a contact's own payee identity to demonstrate rejection and rerouting.
 8. Open the payer's plain-language audit log.
 
-Sign in through the signed links issued by the seed script. Set `DEMO_TIME_SCALE=360` to show escalation (2 minutes) and expiry (4 minutes) during recording; the UI then shows a visible demo-timing badge.
+On the hosted demo, open `/demo` and start a fresh demo: it creates an isolated payer, two contacts, and payees, and shows each actor's signed sign-in link. Notices appear in the demo's in-app outbox (and are also emailed through Resend when configured). Locally, the seed script issues the same links. Set `DEMO_TIME_SCALE=360` to show escalation (2 minutes) and expiry (4 minutes) during recording; the UI then shows a visible demo-timing badge.
 
 Seed users and history, but never fabricate successful PayPal operations. Seeded history rows are marked as seed data.
 
 ## Scope and submission
 
-The deliverables are a working sandbox demo, a Devpost write-up, and a three-minute video led by the scam story and the self-dealing safeguard. Real money, native PayPal protection, production deployment, compliance work, voice analysis, and account-monitoring dashboards are out of scope.
+The deliverables are a working sandbox demo, a Devpost write-up, and a three-minute video led by the scam story and the self-dealing safeguard. Real money, native PayPal protection, production launch (the Render deployment is a sandbox demo), compliance work, voice analysis, and account-monitoring dashboards are out of scope.
+
+Hackathon submission requirements (from the official rules):
+
+- Public repository with a detectable open-source license (MIT) in the About section.
+- A working demo judges can use: the hosted Render URL, plus complete self-host instructions in this README (and a `render.yaml` blueprint for one-click deployment). Include the PayPal sandbox **buyer** test login judges need; never publish API secrets.
+- A demo video under three minutes, public on YouTube, showing the app working end-to-end, with no copyrighted music or unlicensed third-party material.
+- An English text description of the features and functionality.
 
 See `context/project-overview.md`, `context/architecture-context.md`, `context/ui-context.md`, `context/code-standards.md`, `context/ai-workflow-rules.md`, and `context/progress-tracker.md` for implementation context.
