@@ -2,7 +2,7 @@
 
 ## Stack and scope
 
-Use one Next.js application with strict TypeScript, Neon Postgres, PayPal sandbox APIs, one durable runner, an email integration, and OpenAI for a one-way scam-pattern check and wording, with no payment authority. Trigger.dev is the runner, Resend the email provider, and Render the host for the judges' demo URL; the database access library is undecided.
+Use one Next.js application with strict TypeScript, Neon Postgres, PayPal sandbox APIs, one durable runner, an email integration, and OpenAI for a one-way scam-pattern check and wording, with no payment authority. Trigger.dev is the runner, Resend the email provider, and Render the host for the judges' demo URL; database access is Drizzle over `node-postgres` (one shared pool on the pooled Neon URL; migrations on the direct URL).
 
 The repository is public and MIT-licensed (a hackathon rule), so never commit secrets, raw provider payloads, or personal data. Keep product code and credentials separate from Splnit, AgentOS, and Mandate.
 

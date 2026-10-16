@@ -12,7 +12,8 @@
     "test": "vitest run --passWithNoTests",
     "proof": "tsx --conditions=react-server --env-file=.env.local scripts/proof.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts"
   },
   "dependencies": {
     "@neon/config": "^1.9.2",
