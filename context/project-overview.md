@@ -71,7 +71,7 @@ The note or pasted message is untrusted input. The AI check may add a hold becau
 | Durable escalation and expiry | Prevent unanswered holds from releasing | Trigger.dev task; Decision Service |
 | Demo time scale | Show 12h/24h behavior within the video | `DEMO_TIME_SCALE` with visible badge |
 
-Email (Resend) is part of the current canvas and also delivers signed sign-in links. Seeded identities and a minimal review inbox reduce setup work but do not replace required notifications.
+Email (Resend) is part of the current canvas and also delivers signed sign-in links. Seeded identities and a minimal review inbox reduce setup work but do not replace required notifications. On the hosted demo, an in-app outbox shows the same notices, because judges do not own the seeded addresses.
 
 ## Non-goals and deferred work
 

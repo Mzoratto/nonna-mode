@@ -2,9 +2,9 @@
 
 ## Stack and scope
 
-Use one Next.js application with strict TypeScript, Neon Postgres, PayPal sandbox APIs, one durable runner, an email integration, and OpenAI for a one-way scam-pattern check and wording, with no payment authority. Trigger.dev is the runner and Resend the email provider; the database access library is undecided.
+Use one Next.js application with strict TypeScript, Neon Postgres, PayPal sandbox APIs, one durable runner, an email integration, and OpenAI for a one-way scam-pattern check and wording, with no payment authority. Trigger.dev is the runner, Resend the email provider, and Render the host for the judges' demo URL; the database access library is undecided.
 
-Keep the repository private by default. Keep product code and credentials separate from Splnit, AgentOS, and Mandate.
+The repository is public and MIT-licensed (a hackathon rule), so never commit secrets, raw provider payloads, or personal data. Keep product code and credentials separate from Splnit, AgentOS, and Mandate.
 
 ## Module boundaries
 
@@ -96,6 +96,7 @@ No tools, PayPal access, account secrets, or decision fields are available to th
 - Sign actors in with signed, expiring email links (HMAC with `SESSION_SECRET`) that set a session cookie. Derive actor identity from that session, never a freely editable request body.
 - Protect state-changing routes against cross-site requests as appropriate to the chosen session design.
 - Keep admin setup separate from contact review permissions.
+- The public `/demo` page creates isolated scenarios: cap creation (for example, per IP per hour) and let old scenarios lapse. A scenario can only ever touch the sandbox.
 - Redact tokens, sensitive notes, and account identifiers from logs and screenshots.
 
 Production authentication and compliance are out of scope; basic authorization is still necessary to make the sandbox demonstration truthful.
