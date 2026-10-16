@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase: sandbox feasibility proven (2026-10-16), with the separate-payee fallback in effect. Next: Phase 1 durable records.**
+**Phase: durable records in place (2026-10-16). Next: Phase 2, the decision flow and UI.**
 
 Checked items below are backed by evidence: see `evidence/2026-10-16-sandbox-proof.md` for the money-flow proof.
 
@@ -25,13 +25,13 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Blueprint review fixes (2026-10-16): one `Payment` table for every send, written before any PayPal call; added `AWAITING_BUYER`, `AUTHORIZING`, `ABANDONED` states; one AUTHORIZE-only payment path; recovery scan covers in-flight operations; decided new-payee definition, signed-link access, Resend, demo time scale, both contacts may decide after escalation, and the separate-payee fallback; trimmed the required test set.
 - [x] Repository scaffold (Next.js 16, strict TS), PayPal sandbox client, webhook route deployed on Render (2026-10-16).
 - [x] Sandbox proof (2026-10-16): separate-payee capture works but its void is refused (`403 PERMISSION_DENIED`), so the fallback is in effect. Merchant-payee capture and void both confirmed by API and signature-verified webhooks. Request-ID replays are idempotent. Authorization lifetime is 29 days. Webhooks arrive late and out of order.
+- [x] Durable records (2026-10-16): eight tables migrated on Neon `production`, with enums, CHECK constraints, unique idempotency keys, a partial index for in-flight operations, and an append-only audit trigger. Compare-and-set `transition()` with a central state-machine table. Deterministic seed. Webhooks are deduplicated in the DB. Tests on the Neon `test` branch: €200 boundary, one-way AI union, compare-and-set race, append-only audit, duplicate webhooks.
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
-- [ ] Webhook duplicate handling (needs the `WebhookEvent` table; Phase 1).
-- [ ] Database migrations and seed data.
-- [ ] Atomic approval/decline/expiry races.
+- [ ] Approve-vs-expire race through the Decision Service with a mocked PayPal call counter (required test 2; the compare-and-set race itself is tested).
+- [ ] Webhook reconciliation: GET the resource and advance state (events are deduplicated and linked to payments).
 - [ ] Signed-link access and review inbox.
 - [ ] Resend delivery.
 - [ ] Runner startup and five-minute recovery scan.
@@ -111,7 +111,7 @@ Before writing UI:
 | Minimum waiting time | None. |
 | Payment authority | Decision Service only. |
 | Access | Signed, expiring email links for all actors; session cookie. |
-| Storage | Neon Postgres; eight tables. |
+| Storage | Neon Postgres; eight tables; Drizzle over `node-postgres`. Tests run on the Neon `test` branch. |
 | Background work | One Trigger.dev scheduled task. |
 | Notifications | Resend. |
 | Separate payee fallback | **In effect** (2026-10-16 proof: separate-payee void refused). Merchant is the actual payee, recipient is metadata, disclosed. |

@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { appendEvidence } from "@/server/evidence";
+import { recordProviderEvent } from "@/server/decision/webhooks";
+import { db } from "@/server/db/client";
 import { verifyWebhookSignature } from "@/server/paypal/client";
 
 const event = z.object({
@@ -9,7 +10,7 @@ const event = z.object({
   resource: z.object({ id: z.string().optional(), status: z.string().optional() }).loose().optional(),
 });
 
-// Phase 0: verify the signature and record what actually arrives. No state changes yet.
+// Verify the signature, then record the event once (deduplicated by event ID). No state changes yet.
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -31,8 +32,10 @@ export async function POST(request: Request) {
     transmission_id: request.headers.get("paypal-transmission-id"),
     verified,
   };
-  // Hosted (Render) disks are ephemeral; the log line is the readable record there.
   console.log("[paypal-webhook]", JSON.stringify(entry));
-  await appendEvidence("webhooks", entry);
-  return new Response(null, { status: verified ? 200 : 400 });
+  if (!verified) return new Response(null, { status: 400 });
+
+  const r = await recordProviderEvent(db(), { eventId: e.id, eventType: e.event_type, resourceId: e.resource?.id ?? null });
+  console.log("[paypal-webhook] recorded", JSON.stringify({ event_id: e.id, ...r }));
+  return new Response(null, { status: 200 });
 }
