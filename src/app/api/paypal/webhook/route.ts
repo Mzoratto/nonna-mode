@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   const verified = await verifyWebhookSignature(request.headers, body);
   const e = parsed.data;
-  await appendEvidence("webhooks", {
+  const entry = {
     event_id: e.id,
     event_type: e.event_type,
     event_create_time: e.create_time,
@@ -30,6 +30,9 @@ export async function POST(request: Request) {
     resource_status: e.resource?.status,
     transmission_id: request.headers.get("paypal-transmission-id"),
     verified,
-  });
+  };
+  // Hosted (Render) disks are ephemeral; the log line is the readable record there.
+  console.log("[paypal-webhook]", JSON.stringify(entry));
+  await appendEvidence("webhooks", entry);
   return new Response(null, { status: verified ? 200 : 400 });
 }
