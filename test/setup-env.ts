@@ -3,6 +3,10 @@ try {
   process.loadEnvFile(".env.local");
 } catch {}
 
+// Tests never call real third parties: AI checks/wording fall back unless a test injects a fake.
+delete process.env.OPENAI_API_KEY;
+delete process.env.RESEND_API_KEY;
+
 const testUrl = process.env.DATABASE_URL_TEST;
 if (testUrl) {
   const host = (u?: string) => (u ? new URL(u).hostname.split(".")[0]?.replace("-pooler", "") : undefined);

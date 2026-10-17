@@ -11,8 +11,9 @@ import {
   type PaymentState,
   trustedContact,
 } from "@/server/db/schema";
-import { fallbackWording } from "@/server/explanations/fallback";
+import { wording as writeWording } from "@/server/explanations/wording";
 import { scamCheck } from "@/server/explanations/scamCheck";
+import { deliver as deliverEmail } from "@/server/notifications/send";
 import * as realPayPal from "@/server/paypal/client";
 import { PayPalError } from "@/server/paypal/client";
 import { afterPolicy, now } from "@/server/time";
@@ -31,10 +32,14 @@ export type PayPalPort = Pick<
 >;
 let paypal: PayPalPort = realPayPal;
 let checkScam: typeof scamCheck = scamCheck;
+let wording: typeof writeWording = writeWording;
+let deliver: typeof deliverEmail = deliverEmail;
 /** Tests only. */
-export function setDeps(d: { paypal?: PayPalPort; scamCheck?: typeof scamCheck }) {
+export function setDeps(d: { paypal?: PayPalPort; scamCheck?: typeof scamCheck; wording?: typeof writeWording; deliver?: typeof deliverEmail }) {
   if (d.paypal) paypal = d.paypal;
   if (d.scamCheck) checkScam = d.scamCheck;
+  if (d.wording) wording = d.wording;
+  if (d.deliver) deliver = d.deliver;
 }
 
 export type DecisionErrorCode =
@@ -93,6 +98,7 @@ async function notify(
     .values({ paymentId, recipientType, recipientId, type, idempotencyKey: `${type}:${paymentId}:${recipientId}` })
     .onConflictDoNothing()
     .returning({ id: notification.id });
+  if (created) await deliver(created.id); // never throws; failures stay PENDING for the scan
   // Who was asked to review is part of the payer's history ("We asked Luca to check the payment").
   if (created && type in ROUTING_NOTICES) {
     const [p] = await db().select({ state: payment.state }).from(payment).where(eq(payment.id, paymentId));
@@ -247,20 +253,24 @@ async function authorize(p: Payment): Promise<Payment> {
   if (p.flagged) {
     const [who] = await db().select().from(payer).where(eq(payer.id, p.payerId));
     const [to] = await db().select().from(payee).where(eq(payee.id, p.payeeId));
-    const words = fallbackWording({
+    // One wording call; falls back to deterministic text on any failure (never blocks the hold).
+    const words = await wording({
       payerName: who!.name,
       payee: to!.displayName,
+      payeeRelationship: to!.relationship,
       amountMinor: p.amountMinor,
       thresholdMinor: who!.thresholdMinor,
       reasons: p.flaggedReasons,
       aiEvidence: p.aiEvidence,
+      aiPattern: p.aiPatternLabel,
+      pastedMessage: p.pastedMessage,
     });
     const opened = now();
     const held = await move(p, {
       to: "PENDING_REVIEW",
       actor: { type: "PAYPAL" },
       action: "AUTHORIZATION_CONFIRMED_HELD",
-      details: { authorization_expires: auth.expiration_time ?? null, explanation: words.explanation, brief: words.brief },
+      details: { authorization_expires: auth.expiration_time ?? null, explanation: words.explanation, brief: words.brief, wording_source: words.source },
       patch: {
         paypalAuthorizationId: auth.id,
         pendingOperation: null,
