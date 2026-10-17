@@ -14,8 +14,8 @@ Built solo for the **PayPal AI Hackathon** (deadline 12 Nov 2026). PayPal **sand
 
 1. Click **Start a demo**. You get your own family: **Rosa** (sends money) and her children **Luca** and **Giulia** (trusted contacts), each with a sign-in link. Open each person in a **separate browser profile or private window** so they stay signed in side by side.
 2. When PayPal asks Rosa to log in, use the **PayPal sandbox buyer** account:
-   - Email: `TODO: sandbox buyer email`
-   - Password: `TODO: sandbox buyer password`
+   - Email: `sb-3h1xy53099131@personal.example.com`
+   - Password: `@O97sUu?`
 
    (A sandbox test account. No real money exists.)
 3. Play the two scenes:
