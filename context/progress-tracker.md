@@ -35,7 +35,6 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 
 ## Not yet verified
 
-- [ ] AI scam-pattern check against the real OpenAI API (it is tested with faked responses; needs `OPENAI_API_KEY` and `OPENAI_MODEL`).
 - [ ] Trigger.dev `recovery-scan` deployed, with `APP_BASE_URL` and `SCAN_SECRET` set in its environment (the code and the startup scan are done and tested).
 - [ ] Public repository with a detectable MIT license.
 - [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.
@@ -141,7 +140,7 @@ Nice to have if time allows: self-dealing reroute, payer-confirmation-missing ap
 ## Open questions
 
 1. ~~Separate-payee support~~: capture yes, void no, so the fallback applies.
-2. ~~Webhook coverage~~: ORDER.APPROVED, AUTHORIZATION.CREATED/VOIDED and CAPTURE.COMPLETED arrive, linked by resource ID; out of order. Still open: linking to a Payment via `custom_id` (Phase 1).
+2. ~~Webhook coverage and linking~~: ORDER.APPROVED, AUTHORIZATION.CREATED/VOIDED and CAPTURE.COMPLETED arrive, out of order. Each event is linked to its Payment by matching the event's resource ID against the payment's stored order, authorization or capture ID (`src/server/decision/webhooks.ts`); `custom_id` isn't needed. All six events in the 2026-10-17 Render run were linked. Known edge: an event arriving before its ID is stored stays unlinked; that's harmless because the recovery scan reconciles from PayPal.
 3. ~~Authorization lifetime~~: 29 days.
 4. Will the recorded story use EUR throughout? (Default: yes.)
 5. What is the hackathon theme text for the Stage One pass/fail check?
