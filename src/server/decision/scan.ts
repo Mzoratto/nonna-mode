@@ -1,7 +1,8 @@
 import "server-only";
 import { and, eq, inArray, isNotNull, lt, lte, or, type SQL } from "drizzle-orm";
 import { db } from "@/server/db/client";
-import { payment } from "@/server/db/schema";
+import { notification, payment } from "@/server/db/schema";
+import { deliver } from "@/server/notifications/send";
 import { now, POLICY_HOURS, timeScale } from "@/server/time";
 import { abandon, escalate, expire, reconcile } from "./service";
 
@@ -42,5 +43,12 @@ export async function runScan(at: Date = now()) {
       }
     }
   }
+  // Email notices whose delivery failed transiently (still PENDING after the grace period).
+  const stale = await d
+    .select({ id: notification.id })
+    .from(notification)
+    .where(and(eq(notification.status, "PENDING"), lt(notification.createdAt, new Date(at.getTime() - PENDING_GRACE_MS))));
+  result.emails = { ok: 0, failed: 0 };
+  for (const { id } of stale) result.emails[(await deliver(id)) === "PENDING" ? "failed" : "ok"]++;
   return result;
 }

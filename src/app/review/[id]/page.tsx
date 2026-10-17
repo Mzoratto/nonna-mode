@@ -117,7 +117,7 @@ export default async function Review({ params, searchParams }: { params: Promise
         {p.aiPatternLabel ? (
           <div className="card" style={{ borderColor: "var(--amber-line)" }}>
             <h2 style={{ marginTop: 0, display: "flex", gap: 10 }}><span style={{ color: "var(--amber-ink)" }}><Warning /></span> Scam pattern: {PATTERN[p.aiPatternLabel]}</h2>
-            <p>{p.aiEvidence}</p>
+            <p>{p.briefText ?? p.aiEvidence}</p>
             <p>This matches a common scam. It is not proof.</p>
             {quote && <p className="quote">“{quote}”</p>}
           </div>

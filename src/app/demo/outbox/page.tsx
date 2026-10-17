@@ -25,7 +25,7 @@ export default async function Outbox({ searchParams }: { searchParams: Promise<{
         {rows.length === 0 && <p className="card card-dashed">No notices yet.</p>}
         {rows.map(({ n, p, payeeName }) => {
           const to = nameOf(n.recipientType, n.recipientId);
-          const msg = renderNotice(n, { amountMinor: p.amountMinor, payeeName, recipientName: to, payerName: payer.name });
+          const msg = renderNotice(n, { amountMinor: p.amountMinor, payeeName, recipientName: to, payerName: payer.name, explanation: p.explanationText });
           return (
             <article key={n.id} className="card">
               <p className="muted small" style={{ margin: 0 }}>To <strong>{to}</strong> · {formatWhen(n.createdAt, payer.timezone)} · {n.status.toLowerCase()}</p>
