@@ -131,7 +131,7 @@ h1[tabindex="-1"]:focus { outline: none; } /* programmatic focus target, not a c
 .yesno .choice { justify-content: center; min-height: 60px; font-weight: 800; margin: 0; }
 .field-label { display: block; font-weight: 800; margin: 18px 0 8px; }
 input[type="text"], textarea { width: 100%; font: inherit; color: var(--ink); background: var(--page); border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; min-height: 56px; }
-textarea { min-height: 120px; resize: vertical; }
+textarea { min-height: 168px; resize: vertical; } /* a typical pasted scam message fits without inner scrolling */
 .panel { background: var(--page-soft); border: 2px solid var(--line-soft); border-radius: var(--radius); padding: 16px; margin: 14px 0; }
 
 /* ---------- timeline ---------- */
