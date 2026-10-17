@@ -38,7 +38,7 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [ ] Trigger.dev `recovery-scan` deployed, with `APP_BASE_URL` and `SCAN_SECRET` set in its environment (the code and the startup scan are done and tested).
 - [ ] Public repository with a detectable MIT license.
 - [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.
-- [ ] README self-host instructions tested from a clean clone.
+- [x] README: PayPal sandbox buyer login for judges added (2026-10-17). Self-host steps were tested from a clean clone on 2026-10-17 (Docker Postgres, no OpenAI/Resend/webhook): migrate, seed, build, start, health, `/demo`, sign-in and scan all work; `npm test` passes with the DB tests skipped. A real PayPal approval wasn't run in that clone.
 - [ ] Recorded demo, Devpost write-up, and three-minute video (public on YouTube, no copyrighted music).
 
 ## Day-1 proof (done 2026-10-16; kept for reference)

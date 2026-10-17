@@ -2,6 +2,7 @@ import net from "node:net";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
+import { strictTls } from "../src/server/db/tls";
 
 // Apply migrations to the test branch once per run. DB tests skip without DATABASE_URL_TEST.
 export default async function setup() {
@@ -14,9 +15,7 @@ export default async function setup() {
     console.warn("DATABASE_URL_TEST not set: database tests will be skipped");
     return;
   }
-  const u = new URL(url);
-  u.searchParams.set("sslmode", "verify-full");
-  const pool = new Pool({ connectionString: u.toString(), max: 1 });
+  const pool = new Pool({ connectionString: strictTls(url), max: 1 });
   try {
     await migrate(drizzle(pool), { migrationsFolder: "./drizzle" });
   } finally {
