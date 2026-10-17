@@ -73,7 +73,7 @@ Persist processed webhook event IDs with a unique constraint. Verify signatures 
 
 A network timeout leaves the result unknown. Query PayPal before retrying an operation that may have succeeded. Do not mark a payment sent, voided, or definitively failed from a timeout alone.
 
-The runner scans on startup and every five minutes. It must recover abandoned buyer approvals, in-flight operations (`pending_operation`), overdue reviews, and outstanding voids through the Decision Service, not merely process newly scheduled jobs. All durations are multiplied through one `DEMO_TIME_SCALE` helper; never hard-code 12h/24h elsewhere.
+The app scans on startup (`src/instrumentation.ts`), and the Trigger.dev schedule asks it to scan every minute through `POST /api/internal/scan` (bearer `SCAN_SECRET`). It must recover abandoned buyer approvals, in-flight operations (`pending_operation`), overdue reviews, and outstanding voids through the Decision Service, not merely process newly scheduled jobs. All durations are multiplied through one `DEMO_TIME_SCALE` helper; never hard-code 12h/24h elsewhere.
 
 ## Database and audit
 
