@@ -11,6 +11,7 @@ export default defineConfig({
   },
   test: {
     fileParallelism: false, // DB tests share one Neon test branch
+    testTimeout: 20_000, // network round trips to Neon
     setupFiles: ["./test/setup-env.ts"],
     globalSetup: ["./test/global-setup.ts"],
   },

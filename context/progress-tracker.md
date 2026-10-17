@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase: durable records in place (2026-10-16). Next: Phase 2, the decision flow and UI.**
+**Phase: Decision Service in place (2026-10-17). Next: Phase 2b, the screens (send, payment detail, contact inbox, sign-in, demo start).**
 
 Checked items below are backed by evidence: see `evidence/2026-10-16-sandbox-proof.md` for the money-flow proof.
 
@@ -26,16 +26,15 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Repository scaffold (Next.js 16, strict TS), PayPal sandbox client, webhook route deployed on Render (2026-10-16).
 - [x] Sandbox proof (2026-10-16): separate-payee capture works but its void is refused (`403 PERMISSION_DENIED`), so the fallback is in effect. Merchant-payee capture and void both confirmed by API and signature-verified webhooks. Request-ID replays are idempotent. Authorization lifetime is 29 days. Webhooks arrive late and out of order.
 - [x] Durable records (2026-10-16): eight tables migrated on Neon `production`, with enums, CHECK constraints, unique idempotency keys, a partial index for in-flight operations, and an append-only audit trigger. Compare-and-set `transition()` with a central state-machine table. Deterministic seed. Webhooks are deduplicated in the DB. Tests on the Neon `test` branch: €200 boundary, one-way AI union, compare-and-set race, append-only audit, duplicate webhooks.
+- [x] Decision Service (2026-10-17): send, buyer-approval/authorize, capture, void, payer confirm/cancel, contact decide, self-dealing reject + reroute (or decline when no one is eligible), escalate, expire, reconcile with stored request IDs. Webhooks trigger reconcile by reading PayPal. The one-way AI scam check fails closed. Deterministic fallback wording. Tests (Neon test branch, fake PayPal): required test 2 (approve vs expire: one winner, one PayPal mutation), required test 4 (injection/timeout keep or add holds), self-dealing reroute, missing payer confirmation, a lost capture response recovered with the same request ID. 60 tests, 5/5 consecutive green runs.
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
-- [ ] Approve-vs-expire race through the Decision Service with a mocked PayPal call counter (required test 2; the compare-and-set race itself is tested).
-- [ ] Webhook reconciliation: GET the resource and advance state (events are deduplicated and linked to payments).
-- [ ] Signed-link access and review inbox.
+- [ ] Signed-link sign-in route, session cookie, and review inbox UI (the token signing/verification is done and tested).
+- [ ] AI scam-pattern check against the real OpenAI API (it is tested with faked responses; needs `OPENAI_API_KEY` and `OPENAI_MODEL`).
 - [ ] Resend delivery.
 - [ ] Runner startup and five-minute recovery scan.
-- [ ] AI scam-pattern check: schema, one-way union, timeout → hold.
 - [ ] OpenAI wording validation and fallback.
 - [ ] Public repository with a detectable MIT license.
 - [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.

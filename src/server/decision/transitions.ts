@@ -43,9 +43,10 @@ export type TransitionInput = {
   patch?: Omit<Partial<typeof payment.$inferInsert>, "id" | "state" | "version">;
 };
 
-/** One compare-and-set state change + its Decision + its AuditEvent, in one transaction. */
+/** One compare-and-set update (state change or same-state patch) + its Decision + its AuditEvent, in one transaction. */
 export async function transition(ex: Db | Tx, t: TransitionInput): Promise<Payment> {
-  if (!ALLOWED[t.from].includes(t.to)) throw new Error(`illegal transition ${t.from} → ${t.to}`);
+  // Same-state CAS updates (e.g. payer confirmation, pending-operation markers) are allowed and audited.
+  if (t.from !== t.to && !ALLOWED[t.from].includes(t.to)) throw new Error(`illegal transition ${t.from} → ${t.to}`);
   return ex.transaction(async (tx) => {
     const [row] = await tx
       .update(payment)
