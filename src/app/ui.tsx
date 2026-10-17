@@ -36,8 +36,8 @@ export function PayerBar({ back, help }: { back?: string; help?: { name: string;
 /** Trusted-contact header + "Signed in as …" line (comps 7–9). */
 export function ContactBar({ title, back, contactName, payerName }: { title?: string; back?: string; contactName: string; payerName: string }) {
   return (
-    <>
-      <header className="bar">
+    <header>
+      <div className="bar">
         {back ? (
           <Link className="btn btn-chip" href={back} aria-label="Back to requests"><ChevronLeft size={20} /></Link>
         ) : (
@@ -46,9 +46,9 @@ export function ContactBar({ title, back, contactName, payerName }: { title?: st
         {title && <span className="bar-title">{title}</span>}
         <span className="spacer" />
         <span className="pill pill-green">PayPal Sandbox</span>
-      </header>
+      </div>
       <p className="signed-in">Signed in as <strong>{contactName}</strong> · trusted contact for {payerName}</p>
-    </>
+    </header>
   );
 }
 

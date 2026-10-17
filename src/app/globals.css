@@ -83,6 +83,8 @@ p { margin: 0.5em 0; }
 .box-amber { background: var(--amber-bg); border: 2px solid var(--amber-line); color: var(--ink); border-radius: var(--radius); padding: 14px 18px; display: flex; gap: 12px; }
 .box-amber .ico { color: var(--amber-ink); flex: none; }
 .box-blue { background: var(--blue-bg); color: var(--blue-ink); border-radius: var(--radius); padding: 14px 18px; }
+.banner-title { font: inherit; margin: 0; }
+h1[tabindex="-1"]:focus { outline: none; } /* programmatic focus target, not a control */
 .banner-blue { background: var(--blue-bg); color: var(--blue-ink); border-bottom: 2px solid var(--blue-line); padding: 18px; display: flex; gap: 14px; align-items: center; font-weight: 800; font-size: 1.3rem; line-height: 1.2; }
 .tip { background: var(--green-tint); border-radius: var(--radius); padding: 14px 18px; }
 .alert { background: var(--amber-bg); border: 2px solid var(--amber-line); color: var(--amber-ink); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; font-weight: 600; }

@@ -37,7 +37,7 @@ export default async function Review({ params, searchParams }: { params: Promise
     return (
       <div className="shell soft">
         {bar()}
-        <div className="banner-blue" role="alert"><Info /> Your approval wasn&apos;t accepted</div>
+        <div className="banner-blue" role="alert"><Info /> <h1 className="banner-title">Your approval wasn&apos;t accepted</h1></div>
         <main className="content">
           <dl className="rows">
             <div><dt>To</dt><dd>{payee.displayName}</dd></div>
@@ -102,7 +102,7 @@ export default async function Review({ params, searchParams }: { params: Promise
         <ErrorFromQuery code={error} />
         <div className="center" style={{ paddingTop: 8 }}>
           <span className="pill pill-amber">Needs your review</span>
-          <p className="amount-xl num" style={{ margin: "12px 0 4px" }}>{amount}</p>
+          <h1 className="amount-xl num" style={{ margin: "12px 0 4px" }}>{amount}</h1>
           <p style={{ margin: 0 }}>{payer.name} → <strong>{payee.displayName}{p.note ? `, ${p.note}` : ""}</strong></p>
           <p className="muted small">Requested {formatWhen(p.createdAt, tz)}</p>
         </div>
