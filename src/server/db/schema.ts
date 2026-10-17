@@ -99,6 +99,7 @@ export const trustedContact = pgTable(
     name: text("name").notNull(),
     emailNormalized: text("email_normalized").notNull(),
     paypalAccount: text("paypal_account"),
+    phone: text("phone"), // for "Call Luca" (tel: link)
     priority: integer("priority").notNull(),
     active: boolean("active").notNull().default(true),
     createdAt: createdAt(),
@@ -113,6 +114,7 @@ export const payee = pgTable("payee", {
   id: uuid("id").primaryKey().defaultRandom(),
   payerId: uuid("payer_id").notNull().references(() => payer.id),
   displayName: text("display_name").notNull(),
+  relationship: text("relationship"), // "Your son", "Lawyer" — shown under the name
   emailNormalized: text("email_normalized"),
   paypalAccount: text("paypal_account"),
   createdAt: createdAt(),
@@ -168,7 +170,9 @@ export const payment = pgTable(
   ],
 );
 
-export const decision = pgTable("decision", {
+export const decision = pgTable(
+  "decision",
+  {
   id: uuid("id").primaryKey().defaultRandom(),
   paymentId: uuid("payment_id").notNull().references(() => payment.id),
   actorType: actorType("actor_type").notNull(),
@@ -176,9 +180,13 @@ export const decision = pgTable("decision", {
   type: decisionType("type").notNull(),
   accepted: boolean("accepted").notNull(),
   rejectionReason: text("rejection_reason"),
+  /** Optional note from a contact to the payer ("Mamma, I called Matteo…"). */
+  message: text("message"),
   idempotencyKey: text("idempotency_key").notNull().unique(),
   createdAt: createdAt(),
-});
+  },
+  (t) => [check("decision_message_len", sql`${t.message} is null or char_length(${t.message}) <= 500`)],
+);
 
 // Insert-only: a trigger (migration 0001) rejects UPDATE and DELETE.
 export const auditEvent = pgTable(

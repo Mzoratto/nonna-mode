@@ -79,6 +79,8 @@ async function retrying<T>(step: () => Promise<T>): Promise<T> {
 const move = (p: Payment, t: Omit<TransitionInput, "paymentId" | "from" | "version">) =>
   transition(db(), { paymentId: p.id, from: p.state, version: p.version, ...t });
 
+const ROUTING_NOTICES = { REVIEW_REQUEST: "REVIEW_REQUESTED", ESCALATION: "REVIEW_ESCALATED_TO", REROUTE: "REVIEW_REROUTED_TO" } as const;
+
 async function notify(
   paymentId: string,
   recipientType: "PAYER" | "CONTACT",
@@ -86,10 +88,23 @@ async function notify(
   type: (typeof notification.$inferInsert)["type"],
 ) {
   // Idempotent per logical notice; delivery (Resend) is phase 3 and never rolls back a decision.
-  await db()
+  const [created] = await db()
     .insert(notification)
     .values({ paymentId, recipientType, recipientId, type, idempotencyKey: `${type}:${paymentId}:${recipientId}` })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ id: notification.id });
+  // Who was asked to review is part of the payer's history ("We asked Luca to check the payment").
+  if (created && type in ROUTING_NOTICES) {
+    const [p] = await db().select({ state: payment.state }).from(payment).where(eq(payment.id, paymentId));
+    await db().insert(auditEvent).values({
+      paymentId,
+      actorType: "SYSTEM",
+      action: ROUTING_NOTICES[type as keyof typeof ROUTING_NOTICES],
+      previousState: p?.state,
+      newState: p?.state,
+      details: { contact_id: recipientId },
+    });
+  }
 }
 
 async function contactsOf(payerId: string) {
@@ -402,7 +417,13 @@ export async function routedContactIds(p: Payment): Promise<string[]> {
 
 export type DecideResult = { payment: Payment; outcome: "APPROVED" | "DECLINED" | "REROUTED" | "ALREADY_DECIDED" };
 
-export async function decide(contactId: string, paymentId: string, verdict: "APPROVE" | "DECLINE"): Promise<DecideResult> {
+export async function decide(
+  contactId: string,
+  paymentId: string,
+  verdict: "APPROVE" | "DECLINE",
+  message?: string | null,
+): Promise<DecideResult> {
+  const note = message?.trim().slice(0, 500) || null;
   // Validate + commit inside the retry loop; PayPal calls only after the commit.
   const step = await retrying(async () => {
     const p = await load(paymentId);
@@ -418,7 +439,8 @@ export async function decide(contactId: string, paymentId: string, verdict: "APP
         to: "DECLINED",
         actor,
         action: "CONTACT_DECLINED",
-        decision: { type: "DECLINE", idempotencyKey: `review-decision:${p.id}` },
+        details: note ? { message: note } : {},
+        decision: { type: "DECLINE", idempotencyKey: `review-decision:${p.id}`, message: note },
         patch: { pendingOperation: "VOID", pendingOperationAt: now() },
       });
       return { kind: "DECLINED" as const, payment: declined };
@@ -432,7 +454,8 @@ export async function decide(contactId: string, paymentId: string, verdict: "APP
       to: "APPROVED",
       actor,
       action: "CONTACT_APPROVED",
-      decision: { type: "APPROVE", idempotencyKey: `review-decision:${p.id}` },
+      details: note ? { message: note } : {},
+      decision: { type: "APPROVE", idempotencyKey: `review-decision:${p.id}`, message: note },
       patch: { pendingOperation: "CAPTURE", pendingOperationAt: now() },
     });
     return { kind: "APPROVED" as const, payment: approved };
