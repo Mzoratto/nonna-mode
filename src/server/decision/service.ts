@@ -522,6 +522,17 @@ export async function escalate(paymentId: string, at: Date = now()): Promise<Pay
   });
 }
 
+/** Buyer never finished PayPal approval within 3 h (scaled): check PayPal once more, then abandon. No money was held. */
+export async function abandon(paymentId: string, at: Date = now()): Promise<Payment> {
+  const checked = await onBuyerApproved(paymentId); // may have been approved after all
+  if (checked.state !== "AWAITING_BUYER" || at < afterPolicy(checked.createdAt, "abandonBuyer")) return checked;
+  return retrying(async () => {
+    const p = await load(paymentId);
+    if (p.state !== "AWAITING_BUYER") return p;
+    return move(p, { to: "ABANDONED", actor: SYSTEM, action: "BUYER_APPROVAL_ABANDONED" });
+  });
+}
+
 /** Finish whatever the payment is waiting on, using stored request IDs. Webhooks and the scan call this. */
 export async function reconcile(paymentId: string): Promise<Payment> {
   const p = await load(paymentId);

@@ -19,7 +19,7 @@ The canvas contains **10 components and 13 directed connections**, within the li
 | Decision Service | Owns policy, joint consent, routing, transitions, PayPal mutations, webhook verification, and audit writes. |
 | Postgres | Stores relational payment, identity, decision, audit, and notification metadata. |
 | PayPal Sandbox | Provides buyer approval, authorization, capture, void, and payment events. |
-| Hold Scheduler | Requests overdue escalation, expiry, and reconciliation processing at startup and every five minutes. |
+| Hold Scheduler | Requests overdue escalation, expiry, and reconciliation processing at startup and every minute. |
 | Email Notifications | Delivers review, rerouting, outcome, and expiry notices, plus signed sign-in links. |
 | Calm Explanation Agent | Uses OpenAI for a one-way scam-pattern check on the note or pasted message (can only add a hold reason) and to draft explanation text; has no payment authority. |
 
@@ -94,7 +94,7 @@ Flag when the payee is new, the amount is strictly greater than the payer thresh
 
 A flagged payment needs payer confirmation and approval from one eligible contact for the full amount. Match self-dealing against normalized email or configured PayPal account identity. Missing identity data must not be interpreted as proof of eligibility.
 
-Notify the first eligible contact immediately. After 12 hours without a decision, notify the second eligible contact. **After escalation, both eligible contacts may decide; the first valid decision wins.** After 24 hours without a decision, expire and void. The scheduler scans on startup and every five minutes; expiry enforcement therefore has up to one scan interval of delay. The Decision Service also rejects late approvals based on `expires_at`.
+Notify the first eligible contact immediately. After 12 hours without a decision, notify the second eligible contact. **After escalation, both eligible contacts may decide; the first valid decision wins.** After 24 hours without a decision, expire and void. The app scans on startup and the scheduler triggers a scan every minute; expiry enforcement therefore has up to about one minute of delay. The Decision Service also rejects late approvals based on `expires_at`.
 
 ## Payment state machine
 
@@ -124,7 +124,7 @@ A timeout is not proof of failure. Keep `pending_operation` set, query PayPal, a
 
 ## Recovery scan
 
-On startup and every five minutes, the scheduler asks the Decision Service to process:
+On startup and every minute (Trigger.dev `recovery-scan` → `POST /api/internal/scan`), the Decision Service processes:
 
 1. `AWAITING_BUYER` older than 3 hours → check the order; mark `ABANDONED` if not approved.
 2. Any row with `pending_operation` set and older than 2 minutes → read the PayPal resource and finish or retry the operation with its stored request ID.

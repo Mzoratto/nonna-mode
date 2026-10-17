@@ -7,3 +7,5 @@ next-env.d.ts
 evidence/raw/
 .DS_Store
 .neon
+
+.trigger

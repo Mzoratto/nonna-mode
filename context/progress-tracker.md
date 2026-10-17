@@ -27,6 +27,7 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Sandbox proof (2026-10-16): separate-payee capture works but its void is refused (`403 PERMISSION_DENIED`), so the fallback is in effect. Merchant-payee capture and void both confirmed by API and signature-verified webhooks. Request-ID replays are idempotent. Authorization lifetime is 29 days. Webhooks arrive late and out of order.
 - [x] Durable records (2026-10-16): eight tables migrated on Neon `production`, with enums, CHECK constraints, unique idempotency keys, a partial index for in-flight operations, and an append-only audit trigger. Compare-and-set `transition()` with a central state-machine table. Deterministic seed. Webhooks are deduplicated in the DB. Tests on the Neon `test` branch: €200 boundary, one-way AI union, compare-and-set race, append-only audit, duplicate webhooks.
 - [x] Decision Service (2026-10-17): send, buyer-approval/authorize, capture, void, payer confirm/cancel, contact decide, self-dealing reject + reroute (or decline when no one is eligible), escalate, expire, reconcile with stored request IDs. Webhooks trigger reconcile by reading PayPal. The one-way AI scam check fails closed. Deterministic fallback wording. Tests (Neon test branch, fake PayPal): required test 2 (approve vs expire: one winner, one PayPal mutation), required test 4 (injection/timeout keep or add holds), self-dealing reroute, missing payer confirmation, a lost capture response recovered with the same request ID. 60 tests, 5/5 consecutive green runs.
+- [x] Recovery scan (2026-10-17): abandon after 3 h, recover in-flight operations after 2 min with stored request IDs, escalate at 12 h, expire and void at 24 h, retry unconfirmed voids. Runs at startup and through the Trigger.dev `recovery-scan` task (every minute) via the secret-protected `/api/internal/scan`. The real OpenAI scam check (`gpt-6-luna`) was verified: the bail message matched, an ordinary note didn't, and a prompt injection still matched.
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
@@ -34,7 +35,7 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [ ] Signed-link sign-in route, session cookie, and review inbox UI (the token signing/verification is done and tested).
 - [ ] AI scam-pattern check against the real OpenAI API (it is tested with faked responses; needs `OPENAI_API_KEY` and `OPENAI_MODEL`).
 - [ ] Resend delivery.
-- [ ] Runner startup and five-minute recovery scan.
+- [ ] Trigger.dev `recovery-scan` deployed, with `APP_BASE_URL` and `SCAN_SECRET` set in its environment (the code and the startup scan are done and tested).
 - [ ] OpenAI wording validation and fallback.
 - [ ] Public repository with a detectable MIT license.
 - [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.
@@ -77,7 +78,7 @@ Before writing UI:
 
 ### Week 3 — recovery, notifications, and wording
 
-- Configure the Trigger.dev scheduled task for startup and five-minute scans, including in-flight operation recovery.
+- ~~Configure the Trigger.dev scheduled task~~ done 2026-10-17 (every minute, plus a startup scan).
 - Implement Resend notices, 12-hour escalation, 24-hour expiry, and `DEMO_TIME_SCALE`.
 - Add OpenAI explanation/brief generation with deterministic fallback.
 - Deploy to Render from `render.yaml`, register the deployment-URL webhook, and point Trigger.dev at it.

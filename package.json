@@ -18,6 +18,7 @@
   "dependencies": {
     "@neon/config": "^1.9.2",
     "@neon/env": "^1.6.3",
+    "@trigger.dev/sdk": "^4.7.4",
     "drizzle-orm": "0.45.4",
     "next": "16.4.2",
     "pg": "8.23.1",
@@ -27,6 +28,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@trigger.dev/build": "^4.7.4",
     "@types/node": "24.19.2",
     "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
