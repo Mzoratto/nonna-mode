@@ -15,6 +15,13 @@
       "when": 1792177388507,
       "tag": "0001_audit_insert_only",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792215195298,
+      "tag": "0002_design_fields",
+      "breakpoints": true
     }
   ]
 }

@@ -39,7 +39,7 @@ export type TransitionInput = {
   action: string;
   details?: Record<string, unknown>;
   /** An accepted Decision recorded atomically with the transition. */
-  decision?: { type: DecisionType; idempotencyKey: string };
+  decision?: { type: DecisionType; idempotencyKey: string; message?: string | null };
   patch?: Omit<Partial<typeof payment.$inferInsert>, "id" | "state" | "version">;
 };
 
@@ -64,6 +64,7 @@ export async function transition(ex: Db | Tx, t: TransitionInput): Promise<Payme
         type: t.decision.type,
         accepted: true,
         idempotencyKey: t.decision.idempotencyKey,
+        message: t.decision.message ?? null,
       });
     }
     await tx.insert(auditEvent).values({

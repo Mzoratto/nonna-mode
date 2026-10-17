@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase: Decision Service in place (2026-10-17). Next: Phase 2b, the screens (send, payment detail, contact inbox, sign-in, demo start).**
+**Phase: Screens built from the design comps (2026-10-17). Next: Phase 3 remainder: Resend delivery, OpenAI wording, the first real end-to-end sandbox run on Render.**
 
 Checked items below are backed by evidence: see `evidence/2026-10-16-sandbox-proof.md` for the money-flow proof.
 
@@ -28,11 +28,11 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Durable records (2026-10-16): eight tables migrated on Neon `production`, with enums, CHECK constraints, unique idempotency keys, a partial index for in-flight operations, and an append-only audit trigger. Compare-and-set `transition()` with a central state-machine table. Deterministic seed. Webhooks are deduplicated in the DB. Tests on the Neon `test` branch: €200 boundary, one-way AI union, compare-and-set race, append-only audit, duplicate webhooks.
 - [x] Decision Service (2026-10-17): send, buyer-approval/authorize, capture, void, payer confirm/cancel, contact decide, self-dealing reject + reroute (or decline when no one is eligible), escalate, expire, reconcile with stored request IDs. Webhooks trigger reconcile by reading PayPal. The one-way AI scam check fails closed. Deterministic fallback wording. Tests (Neon test branch, fake PayPal): required test 2 (approve vs expire: one winner, one PayPal mutation), required test 4 (injection/timeout keep or add holds), self-dealing reroute, missing payer confirmation, a lost capture response recovered with the same request ID. 60 tests, 5/5 consecutive green runs.
 - [x] Recovery scan (2026-10-17): abandon after 3 h, recover in-flight operations after 2 min with stored request IDs, escalate at 12 h, expire and void at 24 h, retry unconfirmed voids. Runs at startup and through the Trigger.dev `recovery-scan` task (every minute) via the secret-protected `/api/internal/scan`. The real OpenAI scam check (`gpt-6-luna`) was verified: the bail message matched, an ordinary note didn't, and a prompt injection still matched.
+- [x] Screens (2026-10-17), built from the nine design comps in `evidence/raw/1–9`: a three-step send wizard (who → keypad amount → questions with pasted message), paused/waiting/not-sent/sent states, a plain-language history visible to payer and contacts, the contact inbox, the review screen with scam-pattern card and optional message, the self-approval-rejected screen, minimal admin, `/demo` isolated scenarios with signed links, and the in-app outbox. Signed-link sign-in sets an httpOnly session cookie. Typeface: Atkinson Hyperlegible Next. Verified at 360 px in headless Chromium against fixture states on the Neon test branch (fake PayPal): no horizontal overflow on any screen. Not yet exercised against real PayPal approval end-to-end.
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
-- [ ] Signed-link sign-in route, session cookie, and review inbox UI (the token signing/verification is done and tested).
 - [ ] AI scam-pattern check against the real OpenAI API (it is tested with faked responses; needs `OPENAI_API_KEY` and `OPENAI_MODEL`).
 - [ ] Resend delivery.
 - [ ] Trigger.dev `recovery-scan` deployed, with `APP_BASE_URL` and `SCAN_SECRET` set in its environment (the code and the startup scan are done and tested).
