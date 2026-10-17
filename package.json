@@ -13,7 +13,8 @@
     "proof": "tsx --conditions=react-server --env-file=.env.local scripts/proof.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts"
+    "seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts",
+    "ui:fixtures": "tsx --conditions=react-server --env-file=.env.local scripts/ui-fixtures.ts"
   },
   "dependencies": {
     "@neon/config": "^1.9.2",

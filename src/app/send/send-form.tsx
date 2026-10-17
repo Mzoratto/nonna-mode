@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { type SendState, sendAction } from "@/app/actions";
 import { ArrowRight, Backspace, Check, ChevronLeft, Clipboard, Phone, Shield } from "@/app/icons";
 import { Avatar, firstName, SandboxNote } from "@/app/ui";
@@ -22,6 +22,15 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
   const [pasted, setPasted] = useState(state.values?.pastedMessage ?? "");
   const [unsure, setUnsure] = useState(false);
   const [pasteHint, setPasteHint] = useState("");
+
+  // On every step change, move focus to the new heading so screen readers announce it.
+  const heading = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    window.scrollTo({ top: 0 });
+    heading.current?.focus();
+  }, [step]);
 
   const payee = payees.find((p) => p.id === payeeId);
   const minor = parseEurToMinor(amount);
@@ -59,7 +68,8 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
   return (
     <div className="shell">
       {bar}
-      <form action={action} className="content" id="send" aria-live="polite">
+      <main className="content">
+      <form action={action} id="send">
         <input type="hidden" name="payeeId" value={payeeId} />
         <input type="hidden" name="amount" value={amount} />
         <input type="hidden" name="note" value={note} />
@@ -69,7 +79,7 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
         {step === 1 && (
           <>
             <p className="step">Step 1 of 3</p>
-            <h1>Who do you want to pay?</h1>
+            <h1 ref={heading} tabIndex={-1}>Who do you want to pay?</h1>
             <div role="radiogroup" aria-label="Who do you want to pay?">
               {payees.map((p) => (
                 <button key={p.id} type="button" role="radio" aria-checked={payeeId === p.id} className="choice" onClick={() => setPayeeId(p.id)}>
@@ -88,7 +98,7 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
         {step === 2 && payee && (
           <>
             <p className="step">Step 2 of 3</p>
-            <h1>How much?</h1>
+            <h1 ref={heading} tabIndex={-1}>How much?</h1>
             <p>To <strong>{payee.name}</strong></p>
             <label className="amount-box">
               <span className="sr-only">Amount in euros</span>
@@ -114,7 +124,7 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
         {step === 3 && payee && minor !== null && (
           <>
             <p className="step">Step 3 of 3</p>
-            <h1>A few questions</h1>
+            <h1 ref={heading} tabIndex={-1}>A few questions</h1>
             {state.error && <p className="alert" role="alert">{state.error}</p>}
 
             <label className="field-label" htmlFor="note-input">What is the money for?</label>
@@ -157,6 +167,7 @@ export function SendForm({ payees, thresholdMinor, contacts, help }: Props) {
           </>
         )}
       </form>
+      </main>
 
       <footer className="foot">
         {step < 3 ? (
