@@ -2,7 +2,7 @@
 
 ## Status
 
-**Phase: Email + AI wording done (2026-10-17). Next: the first real end-to-end sandbox run on Render, then UI polish and Phase 4 (recording, Devpost).**
+**Phase: End-to-end verified on Render with real PayPal, OpenAI and Resend (2026-10-17). Next: UI polish, README for judges, then Phase 4 (recording, Devpost).**
 
 Checked items below are backed by evidence: see `evidence/2026-10-16-sandbox-proof.md` for the money-flow proof.
 
@@ -30,12 +30,12 @@ Submission deadline: **November 12, 2026** (about four weeks of solo work).
 - [x] Recovery scan (2026-10-17): abandon after 3 h, recover in-flight operations after 2 min with stored request IDs, escalate at 12 h, expire and void at 24 h, retry unconfirmed voids. Runs at startup and through the Trigger.dev `recovery-scan` task (every minute) via the secret-protected `/api/internal/scan`. The real OpenAI scam check (`gpt-6-luna`) was verified: the bail message matched, an ordinary note didn't, and a prompt injection still matched.
 - [x] Screens (2026-10-17), built from the nine design comps in `evidence/raw/1–9`: a three-step send wizard (who → keypad amount → questions with pasted message), paused/waiting/not-sent/sent states, a plain-language history visible to payer and contacts, the contact inbox, the review screen with scam-pattern card and optional message, the self-approval-rejected screen, minimal admin, `/demo` isolated scenarios with signed links, and the in-app outbox. Signed-link sign-in sets an httpOnly session cookie. Typeface: Atkinson Hyperlegible Next. Verified at 360 px in headless Chromium against fixture states on the Neon test branch (fake PayPal): no horizontal overflow on any screen. Not yet exercised against real PayPal approval end-to-end.
 - [x] Email + wording (2026-10-17): one OpenAI wording call per held payment (calm payer explanation, factual contact brief; length-capped, refuses "definitely a scam" or "please approve" text, deterministic fallback). Verified once against the real API (`gpt-6-luna`). Resend delivery with the notice idempotency key as `Idempotency-Key`, a signed sign-in link, no note or message content, "not from PayPal" footer. Reserved demo addresses are skipped (in-app outbox), `DEMO_EMAIL_OVERRIDE` routes demo mail to one inbox, 4xx is final, 5xx is retried by the scan. Tests use fakes; nothing calls real third parties in CI.
+- [x] End-to-end on Render (2026-10-17), real services: bail scam → AI hold → Luca declines → PayPal **VOIDED**; Rosa → Luca €900 → Luca's approval rejected (self-dealing) → rerouted to Giulia → approved → PayPal capture **COMPLETED**. All six webhooks verified and linked, all notices sent by Resend. See `evidence/2026-10-17-render-e2e.md`. Found and fixed: sign-in redirect to the proxy's internal `localhost:10000` (PR #8).
 - [x] Hackathon rules review (2026-10-16): public MIT repository, hosted Render demo URL plus self-host instructions, `/demo` isolated scenarios, in-app outbox, sandbox buyer login published for judges.
 
 ## Not yet verified
 
 - [ ] AI scam-pattern check against the real OpenAI API (it is tested with faked responses; needs `OPENAI_API_KEY` and `OPENAI_MODEL`).
-- [ ] Resend delivery against the real API (code and tests done; needs `RESEND_API_KEY` and a verified `EMAIL_FROM`).
 - [ ] Trigger.dev `recovery-scan` deployed, with `APP_BASE_URL` and `SCAN_SECRET` set in its environment (the code and the startup scan are done and tested).
 - [ ] Public repository with a detectable MIT license.
 - [ ] Render deployment (paid instance, `render.yaml`) with registered webhook; `/demo` scenarios and outbox.

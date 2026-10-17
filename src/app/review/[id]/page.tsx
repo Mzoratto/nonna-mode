@@ -76,7 +76,7 @@ export default async function Review({ params, searchParams }: { params: Promise
     };
     return (
       <div className="shell soft">
-        {bar("Review request")}
+        {bar("Review")}
         <main className="content">
           {["APPROVED", "DECLINED", "EXPIRED"].includes(p.state) && <meta httpEquiv="refresh" content="3" />}
           <ErrorFromQuery code={error} />
@@ -97,7 +97,7 @@ export default async function Review({ params, searchParams }: { params: Promise
   const quote = p.pastedMessage && (p.pastedMessage.length > 140 ? `${p.pastedMessage.slice(0, 140)}…` : p.pastedMessage);
   return (
     <div className="shell soft">
-      {bar("Review request")}
+      {bar("Review")}
       <main className="content">
         <ErrorFromQuery code={error} />
         <div className="center" style={{ paddingTop: 8 }}>
