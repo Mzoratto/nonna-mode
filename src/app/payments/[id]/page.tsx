@@ -5,6 +5,7 @@ import { Banknote, Check, Cross, MessageAlert, Pause, Person, Phone, Question } 
 import { Avatar, ErrorFromQuery, firstName, PayerBar } from "@/app/ui";
 import { requireActor } from "@/server/auth/session";
 import type { FlagReason } from "@/server/db/schema";
+import { isSelfDealing } from "@/server/decision/eligibility";
 import { paymentDetail } from "@/server/views";
 import { formatEur, formatWhen } from "@/shared/format";
 import { TRANSITIONAL } from "@/shared/status";
@@ -23,6 +24,9 @@ export default async function PaymentPage({ params, searchParams }: { params: Pr
   const tz = payer.timezone;
   const amount = formatEur(p.amountMinor);
   const active = contacts.filter((c) => c.active);
+  // Who can actually approve: never a contact the money would go to (e.g. Rosa paying Luca → only Giulia).
+  const reviewers = active.filter((c) => !isSelfDealing(c, payee)).map((c) => firstName(c.name));
+  const reviewerText = reviewers.length ? reviewers.join(" or ") : "a trusted contact";
   const first = active[0];
   const help = first ? { name: first.name, phone: first.phone } : undefined;
   const callFirst = first?.phone && (
@@ -84,7 +88,7 @@ export default async function PaymentPage({ params, searchParams }: { params: Pr
             <button className="btn" type="submit"><Check /> Yes, send it</button>
           </form>
         </div>
-        <p className="muted small center">If you say yes, {active.map((c) => firstName(c.name)).join(" or ")} will check it before anything is sent.</p>
+        <p className="muted small center">If you say yes, {reviewerText} will check it before anything is sent.</p>
       </>,
     );
   }
@@ -99,7 +103,7 @@ export default async function PaymentPage({ params, searchParams }: { params: Pr
           <p><strong>{amount}</strong> to {payee.displayName}</p>
         </div>
         <p className="box-green">Nothing has been sent. The money is still in your account.</p>
-        <p>You said yes. Now {p.state === "ESCALATED" ? active.map((c) => firstName(c.name)).join(" or ") : first ? firstName(first.name) : "a trusted contact"} needs to check it.</p>
+        <p>You said yes. Now {p.state === "ESCALATED" ? reviewerText : (reviewers[0] ?? "a trusted contact")} needs to check it.</p>
         {p.expiresAt && <p className="muted">If nobody decides by {formatWhen(p.expiresAt, tz)}, it will be cancelled and nothing will be sent.</p>}
         <div className="stack">
           {callFirst}
