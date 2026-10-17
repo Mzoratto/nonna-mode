@@ -4,8 +4,8 @@ try {
 } catch {}
 
 // Tests never call real third parties: AI checks/wording fall back unless a test injects a fake.
-delete process.env.OPENAI_API_KEY;
-delete process.env.RESEND_API_KEY;
+// Same for every email setting from .env.local, so tests never depend on the developer's inbox.
+for (const k of ["OPENAI_API_KEY", "RESEND_API_KEY", "EMAIL_FROM", "DEMO_EMAIL_OVERRIDE"]) delete process.env[k];
 
 const testUrl = process.env.DATABASE_URL_TEST;
 if (testUrl) {
